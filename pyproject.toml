@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "fast-zero-assync"
+version = "0.1.0"
+description = ""
+authors = ["Evandro Paulo Folletto <evandrofolletto@gmail.com>"]
+readme = "README.md"
+packages = [{include = "fast_zero_assync"}]
+
+[tool.poetry.dependencies]
+python = ">=3.12, <4.0"
+fastapi = {extras = ["standard"], version = "^0.115.12"}
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.9"
+pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
+taskipy = "^1.14.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ['migrations']
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
+
+[tool.taskipy.tasks]
+lint = 'ruff check'
+pre_format = 'ruff check --fix'
+format = 'ruff format'
+run = 'fastapi dev fast_zero_assync/app.py'
+pre_test = 'task lint'
+test = 'pytest -s -x --cov=fast_zero_assync -vv'
+post_test = 'coverage html'
