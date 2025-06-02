@@ -11,9 +11,12 @@ from sqlalchemy.orm import Session
 
 from fast_zero_assync.database import get_session
 from fast_zero_assync.models import User
+from fast_zero_assync.settings import Settings
 
 # ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = PasswordHash.recommended()
+settings = Settings()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 
 def get_password_hash(password: str):
@@ -24,20 +27,16 @@ def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-SECRET_KEY = 'your-secret-key'
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
-
-
 def create_access_token(data: dict):
     # o que vem em data são as claims
     to_encode = data.copy()
     expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({'exp': expire})
-    encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
 
     return encoded_jwt
 
@@ -53,7 +52,9 @@ def get_current_user(
     )
 
     try:
-        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         subject_email = payload.get('sub')
 
         if not subject_email:
