@@ -14,6 +14,7 @@ pydantic-settings = "^2.9.1"
 alembic = "^1.16.1"
 pwdlib = {extras = ["argon2"], version = "^0.2.1"}
 pyjwt = "^2.10.1"
+aiosqlite = "^0.21.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -21,6 +22,7 @@ ruff = "^0.11.9"
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
 taskipy = "^1.14.1"
+pytest-asyncio = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -41,6 +43,7 @@ quote-style = 'single'
 [tool.pytest.ini_options]
 pythonpath = "."
 addopts = '-p no:warnings'
+asyncio_default_fixture_loop_scope = 'function'
 
 [tool.taskipy.tasks]
 lint = 'ruff check'
@@ -50,3 +53,6 @@ run = 'fastapi dev fast_zero_assync/app.py'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=fast_zero_assync -vv'
 post_test = 'coverage html'
+
+[tool.coverage.run]
+concurrency = ["thread", "greenlet"]
